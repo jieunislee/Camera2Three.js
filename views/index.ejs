@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Title</title>
+		<style>
+			body { margin: 0; }
+			canvas { display: block; }
+		</style>
+	</head>
+	<body>
+		<script src="./public/libs/three.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+		<script>
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+      camera.position.z = 5;
+
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+
+			var geometry = new THREE.PlaneGeometry( 5, 5, 32 );
+      var material = new THREE.MeshBasicMaterial( {map: (new THREE.TextureLoader()).load("./public/res/interior_side.jpg")} );
+      // var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+      var plane = new THREE.Mesh( geometry, material );
+
+			//bottom view
+			var geobottom = new THREE.PlaneGeometry( 5, 5, 32 );
+			var matbottom = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+			var bottom = new THREE.Mesh (geobottom, matbottom);
+
+			//left view
+			var geoleft = new THREE.PlaneGeometry( 5, 5, 32 );
+			var matleft = new THREE.MeshBasicMaterial( {color: 0xffff66, side: THREE.DoubleSide} );
+			var left = new THREE.Mesh (geoleft, matleft);
+
+			//right view
+			var georight = new THREE.PlaneGeometry( 5, 5, 32 );
+			var matright = new THREE.MeshBasicMaterial( {color: 0xffff99, side: THREE.DoubleSide} );
+			var right = new THREE.Mesh (georight, matright);
+
+			//plane.rotation.x = 1;
+			front.position.y = 1;
+			front.position.x = 1;
+      scene.add( plane );
+
+			bottom.rotation.x = 2;
+			bottom.position.y =  -3;
+			bottom.position.x = 1;
+			scene.add( bottom );
+
+			left.rotation.y = 2;
+			left.position.y =  2;
+			left.position.x = 4;
+			scene.add( left );
+
+			right.rotation.y = -2;
+			right.position.y =  2;
+			right.position.x = -4;
+			scene.add( right );
+
+      var animate = function () {
+        requestAnimationFrame( animate );
+        renderer.render( scene, camera );
+      };
+
+      animate();
+
+			var socket = io.connect('143.248.109.186:8080');
+		socket.on("FrontImage",function(data){
+			scene.remove( plane );
+			console.log(data)
+			material = new THREE.MeshBasicMaterial( {map: (new THREE.TextureLoader()).load(data)} );
+			plane = new THREE.Mesh( geometry, material );
+			scene.add( plane );
+		})
+
+	</script>
+</body>
+</html>

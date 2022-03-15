@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+  	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  </head>
+
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="manifest" href="./manifest.json">
+  <script src="/socket.io/socket.io.js"></script>
+
+  <style>
+  .mobile-initial-screen{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 999;
+    background-color: #27262c;
+  }
+
+  .fullscreen-text{
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
+    color:#ffffff;
+  }
+
+  </style>
+
+
+  <body>
+    <div class="mobile-initial-screen" id="fullScreen">
+      <span class="fullscreen-text">Touch the screen to start</span>
+    </div>
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+    <button id="snap">Snap Photo</button>
+    <button id="front">Front</button>
+    <script>
+    $("#fullScreen").click(function(){
+      document.documentElement.requestFullscreen();
+      $("#fullScreen").hide();
+    });
+    // Grab elements, create settings, etc.
+    var video = document.getElementById('video');
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+
+    // Get access to the camera!
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        // Not adding `{ audio: true }` since we only want video now
+        navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+            //video.src = window.URL.createObjectURL(stream);
+            video.srcObject = stream;
+            video.play();
+        });
+    }
+
+    var socket = io.connect('143.248.109.186:8080');
+
+    $("#snap").click(function(){
+      $("#video").get(0).pause();
+    })
+
+    $("#front").click(function(){
+      context.drawImage(video,0,0,640,480);
+      var dataURL  = canvas.toDataURL();
+      $("#video").get(0).play();
+      socket.emit("FrontImage", dataURL)
+    })
+
+    </script>
+  </body>
+</html>
